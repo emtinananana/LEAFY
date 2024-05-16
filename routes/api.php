@@ -30,15 +30,17 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
          Route::post('products/add', [ProductController::class, 'store']);
          Route::put('products/{id}', [ProductController::class, 'update']);
          Route::delete('products/{id}', [ProductController::class, 'destroy']);
-        });
-        //tags
-        Route::get('/admin/tags', [TagController::class, 'index']);
-Route::post('/admin/tags', [TagController::class, 'store']);
-Route::get('/admin/tags/{id}', [TagController::class, 'show']);
-Route::put('/admin/tags/{id}', [TagController::class, 'update']);
-Route::delete('/admin/tags/{id}', [TagController::class, 'destroy']);
-  
+         //tags
+       
 
+       Route::get('tags', [TagController::class, 'index']);
+       Route::post('tags/add', [TagController::class, 'store']);
+       Route::get('tags/{id}', [TagController::class, 'show']);
+       Route::put('tags/{id}', [TagController::class, 'update']);
+       Route::delete('tags/{id}', [TagController::class, 'destroy']);
+  
+        });
+        
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
