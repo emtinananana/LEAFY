@@ -10,7 +10,9 @@ class ShoppingCart extends Model
     public function customer() {
         return $this->belongsTo(Customer::class);
     }
-    public function cartItems() {
+    public function cartItems()
+    {
         return $this->hasMany(CartItem::class);
     }
 }
+    

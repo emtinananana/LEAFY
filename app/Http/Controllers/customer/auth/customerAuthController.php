@@ -2,13 +2,14 @@
 
 namespace App\Http\Controllers\customer\auth;
 use App\Http\Controllers\Controller;
-use App\Models\customer;
+use App\Models\Customer;
+use App\Models\ShoppingCart;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\hash;
 use Illuminate\Support\Facades\auth;
 
-class CustomerAuthController extends Controller
+class customerAuthController extends Controller
 {
     public function register(Request $request){
 
@@ -22,7 +23,7 @@ class CustomerAuthController extends Controller
 ]);
 
 
-$customer = customer::create([
+$customer = Customer::create([
 'name'=> $fields['name'],
 'email'=> $fields['email'],
 'password'=> bcrypt($fields['password']),
@@ -32,7 +33,10 @@ $customer = customer::create([
 ]);
 
 $token =$customer->createToken('registeredcustomer_token')->plainTextToken;
-
+$shoppingCart = new ShoppingCart();
+$customer->shoppingCart()->save($shoppingCart);
+$shoppingCart->cartItems()->createMany([
+]);
 return response()->json([
 
      'token' => $token,

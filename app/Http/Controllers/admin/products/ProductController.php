@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\admin\product;
+namespace App\Http\Controllers\admin\products;
 
 use App\Models\Product;
 use App\Models\Tag;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
+use Illuminate\Support\Facades\Validator;
 class ProductController extends Controller
 {
     /**
@@ -14,7 +16,17 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::all();
-        return response()->json($products);
+        if ($products->isEmpty()) {
+            return response()->json(['message' => 'No products found.'], 404);
+        }
+    
+   
+        $products = Product::with(['tags' => function ($query) {
+            $query->select('tags.id', 'name');
+        }])->get();
+    
+      
+        return response()->json($products, 200);
     }
 
     /**
@@ -25,17 +37,33 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'tags' => 'required|array', 
+            'tags' => 'required|array',
+            'price' => 'required|numeric',
+            'quantity' => 'required|integer',
+            'product_type' => 'required|string|exists:producttypes,name'
         ]);
-    
-        
+        $tagNames = $request->input('tags');
+        $tagIds = [];
+        foreach ($tagNames as $tagName) {
+            $tag = Tag::where('name', $tagName)->first();
+            if ($tag) {
+                $tagIds[] = $tag->id;
+            } 
+        }
         $product = Product::create($request->except('tags'));
-    
-        $product->tags()->attach($request->input('tags'));
+
+      
+        $tagNames = $request->input('tags');
+        foreach ($tagNames as $tagName) {
+            $tag = Tag::firstOrCreate(['name' => $tagName]);
+            $product->tags()->attach($tag->id);
+        }
     
       
-        $productWithTags = Product::with('tags')->find($product->id);
-    
+        $productWithTags = Product::with(['tags' => function ($query) {
+            $query->select('tags.id', 'name');
+        }])->find($product->id);
+        
         return response()->json($productWithTags, 201);
     }
     
@@ -57,17 +85,32 @@ class ProductController extends Controller
         $product = Product::findOrFail($id);
         
         $request->validate([
-            'name' => 'required|string',
+            'name' => 'string',
             'description' => 'nullable|string',
-            'tags' => 'required|array', // Assuming tags are sent as an array of tag IDs
+            'tags' => 'array',
+            'price' => 'numeric',
+            'quantity' => 'integer',
+            'product_type' => 'string|exists:producttypes,name'
         ]);
-
-        $product->update($request->except('tags'));
-        $product->tags()->sync($request->input('tags'));
-
-        return response()->json($product, 200);
+    
+       
+        $product->update($request->only(['name', 'description', 'price', 'quantity', 'product_type']));
+    
+      
+        if ($request->has('tags')) {
+           
+            $tagIds = [];
+            foreach ($request->input('tags') as $tagName) {
+                $tag = Tag::firstOrCreate(['name' => $tagName]);
+                $tagIds[] = $tag->id;
+            }
+            $product->tags()->attach($tagIds);
+        }
+    
+        $product = Product::with('tags')->find($id);
+        return response()->json($product);
     }
-
+    
     /**
      * Remove the specified product from storage.
      */
@@ -77,7 +120,7 @@ class ProductController extends Controller
         $product->tags()->detach(); 
         $product->delete();
 
-        return response()->json(null, 204);
+        return response()->json(['message' => 'product deleted successfully']);
     }
         /**
      * Search for product types by name.

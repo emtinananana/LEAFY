@@ -13,9 +13,10 @@ class TagController extends Controller
      */
     public function index()
     {
-        $tags = tags::all();
+        $tags = Tag::all();
         return response()->json($tags);
     }
+    
 
     /**
      * Show the form for creating a new resource.

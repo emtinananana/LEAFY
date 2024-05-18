@@ -15,6 +15,10 @@ class CRUDController extends Controller
     public function index()
     {
         $productTypes = ProductType::all();
+        if ($productTypes->isEmpty()) {
+            return response()->json(['message' => 'No product types found.'], 404);
+        }
+    
         return response()->json($productTypes);
     }
 
@@ -63,17 +67,18 @@ class CRUDController extends Controller
             'name' => 'required|string',
             'description' => 'nullable|string',
         ]);
-        
-       
-       
+    
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()->first()], 400);
         }
     
-        $productType = ProductType::update($request->all());
-        return response()->json($productType);
         
+        $productType->update($request->all());
+    
+ 
+        return response()->json($productType);
     }
+    
     
 
     /**
