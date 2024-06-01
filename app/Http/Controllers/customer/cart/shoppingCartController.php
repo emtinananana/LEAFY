@@ -63,7 +63,8 @@ class shoppingCartController extends Controller
      'is_gift' => $request->input('is_gift', false),
      'pot_type' => $request->input('pot_type', null),
      'product_id' => $productId,
-]);
+ ]);
+
         
 return response()->json([
     'success' => true,

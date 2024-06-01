@@ -14,52 +14,71 @@ class profileController extends Controller
                
                
                 'email'=> 'required',
+                'name'=> 'required',
                  'password' => 'min:6',
               
                 ]);
             $admin = auth()->guard('admin-api')->user();
             $admin->update([  'email' => $request->email ? ($request->email) : $admin->email,
+            'name' => $request->name ? ($request->name) : $admin->name,
                 'password' => $request->password ? bcrypt($request->password) : $admin->password,
-       
+            ]);
 
-              ]);
+             return response()->json([
+              'message' => 'Profile updated successfully',
+          ],200);
             }
             public function updateAvatar(Request $request)
             {
-                if (!$request->user('admin')) {
+                
+          
+                 if (!$request->user('admin-api')) {
                     return response()->json([
-                        'message' => 'User not authenticated',
-                    ], 401);
-                }
+                     'message' => 'User not authenticated',
+                  ], 401);
+                 }
+            
+             
                 $this->validate($request, [
                     'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
                 ]);
-                $admin = auth()->guard('admin')->user();
-              
-                if($admin->avatar) {
-                  
-                    unlink(public_path('uploads/admins/avatars/'.$admin->avatar));
+            
+               
+                if (!$request->hasFile('avatar')) {
+                    return response()->json([
+                        'message' => 'No file uploaded',
+                    ], 400);
                 }
-                
+            
+               
+                $admin = auth()->guard('admin-api')->user();
+                if (!$admin) {
+                    return response()->json([
+                        'message' => 'Authentication failed',
+                    ], 401);
+                }
+        
+                if ($admin->avatar) {
+                    $oldAvatarPath = public_path('uploads/admins/avatars/' . $admin->avatar);
+                    if (file_exists($oldAvatarPath)) {
+                        unlink($oldAvatarPath);
+                    }
+                }
+
                 $avatar = $request->file('avatar');
-              
                 $avatarName = time() . '.' . $avatar->extension();
-              
                 $avatar->move(public_path('uploads/admins/avatars'), $avatarName);
-              
+
                 $admin->update([
                     'avatar' => $avatarName,
                 ]);
-              
+            
                 return response()->json([
                     'message' => 'Profile updated successfully',
                     'admin' => $admin,
                 ], 200);
+            }
             
-          return response()->json([
-              'message' => 'Profile updated successfully',
-          ],200);
-      }
   }
   
   

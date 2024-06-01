@@ -4,12 +4,16 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\admin\productType\CRUDController;
 use App\Http\Controllers\admin\products\ProductController;
+use App\Http\Controllers\admin\products\ProductImageController;
 use App\Http\Controllers\admin\auth\AuthController;
 use App\Http\Controllers\admin\TagController;
 use App\Http\Controllers\admin\profile\profileController;
 use App\Http\Controllers\customer\auth\customerAuthController;
+use App\Http\Controllers\customer\profile\customerprofilecontroller;
 use App\Http\Controllers\customer\cart\shoppingCartController;
-
+use App\Http\Controllers\customer\cart\CheckOutCart;
+use App\Http\Controllers\customer\favs\LikeProductsController;
+use App\Http\Controllers\customer\history\HistoryController;
 
 // admin route 
 Route::group(['prefix' => 'admin/'], function() {
@@ -20,7 +24,7 @@ Route::group(['prefix' => 'admin/'], function() {
 Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function() {
     //auth
          Route::post('logout', [AuthController::class, 'logout'])->name('logout');
-        //  Route::post('/profile/edit', [adminprofilecontroller::class,'update']);
+          Route::put('/profile/edit', [profileController::class,'update']);
         Route::post('profile/update/avatar', [profileController::class, 'updateAvatar'])->name('profile.update.avatar');
          // Product Types Routes
          Route::get('productTypes', [CRUDController::class, 'index']);
@@ -37,6 +41,10 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
          Route::post('products/add', [ProductController::class, 'store']);
          Route::put('products/{id}', [ProductController::class, 'update']);
          Route::delete('products/{id}', [ProductController::class, 'destroy']);
+         //productimages 
+         Route::post('/products/{productId}/images', [ProductImageController::class, 'store']);
+         Route::delete('/products/{productId}/images/{imageId}', [ProductImageController::class, 'destroy']);
+         Route::put('/products/{productId}/images/{imageId}', [ProductImageController::class, 'update']);
          //tags
        
        Route::get('tags/index', [TagController::class, 'index']);
@@ -55,12 +63,23 @@ Route::group(['prefix' => 'customer/'], function() {
 
 Route::group(['middleware'=>['auth:customer-api'], 'prefix' => 'customer/'], function() {
     Route::post('/logout', [customerAuthController::class, 'logout'])->name('logout');
-    Route::post('/profile/edit', [customerAuthController::class,'update']);
-    Route::post('profile/update/avatar', [AuthController::class, 'updateAvatar'])->name('profile.update.avatar');
+    Route::put('/profile/edit', [customerprofilecontroller::class,'update']);
+    Route::post('profile/update/avatar', [customerprofilecontroller::class, 'updateAvatar'])->name('profile.update.avatar');
     //shopping cart routes
     Route::get('/cart/{id}', [shoppingCartController::class,'show']);
     Route::post('cart/add/{customerId}/{productId}',[shoppingCartController::class,'addToCart']);
     Route::delete('cart/remove/{customerId}/{cartItemId}',[shoppingCartController::class,'removeFromCart']);
+    //checkout
+    Route::post('cart/checkout', [CheckOutCart::class, 'CheckoutCart']);
+    
+    //favproducts routes 
+    Route ::post('/products/{productId}/like', [LikeProductsController::class, 'likeProduct']);
+    Route ::post('/products/{productId}/unlike', [LikeProductsController::class, 'UnlikeProduct']);
+    Route ::get('/products/favorites', [LikeProductsController::class, 'ShowLikedProducts']);
+    //history
+    Route::get('history', [HistoryController::class, 'showHistory']);
+
+
 
 
 });

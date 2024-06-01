@@ -31,4 +31,12 @@ class Customer extends Authenticatable
     {
         return $this->hasOne(ShoppingCart::class);
     }
+    public function likedProducts()
+    {
+        return $this->belongsToMany(Product::class, 'customers_likes');
+    }
+    public function history()
+    {
+        return $this->hasOne(History::class);
+    }
 }

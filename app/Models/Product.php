@@ -6,16 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['product_type', 'name', 'description', 'price', 'quantity'];
+    protected $fillable = ['product_type', 'name', 'description', 'price', 'quantity','like_count'];
 
     function incrementLikeCount()
     {
-        $this->increment('likecount');
+        $this->increment('like_count');
     }
 
     function decrementLikeCount()
     {
-        $this->decrement('likecount');
+        $this->decrement('like_count');
     }
     function ProductType()
     {
@@ -29,4 +29,9 @@ class Product extends Model
     {
         return $this->belongsToMany(Tag::class);
     }
+    public function likedByCustomers()
+    {
+        return $this->belongsToMany(Customer::class, 'customers_likes');
+    }
+
 }
