@@ -76,7 +76,7 @@ Route::group(['middleware'=>['auth:customer-api'], 'prefix' => 'customer/'], fun
     Route ::post('/products/{productId}/like', [LikeProductsController::class, 'likeProduct']);
     Route ::post('/products/{productId}/unlike', [LikeProductsController::class, 'UnlikeProduct']);
     Route ::get('/products/favorites', [LikeProductsController::class, 'ShowLikedProducts']);
-    //history
+    //historyroutes
     Route::get('history', [HistoryController::class, 'showHistory']);
 
 
