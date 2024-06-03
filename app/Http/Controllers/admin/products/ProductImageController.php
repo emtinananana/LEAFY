@@ -12,37 +12,27 @@ class ProductImageController extends Controller
    
     public function store(Request $request, $productId)
     {
+        $product = Product::findOrFail($productId);
+
         $validator = Validator::make($request->all(), [
-            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'images.*' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // Assuming maximum 
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 422);
+            return response()->json(['error' => $validator->errors()], 400);
         }
 
-        $product = Product::find($productId);
-        if (!$product) {
-            return response()->json(['message' => 'Product not found'], 404);
+        foreach ($request->file('images') as $image) {
+            $imageName = time() . '_' . $image->getClientOriginalName();
+            $image->storeAs('product_images', $imageName, 'public');
+
+            $productImage = new ProductImage();
+            $productImage->product_id = $productId;
+            $productImage->image = $imageName;
+            $productImage->save();
         }
-
-        $uploadedImages = [];
-        if ($request->hasFile('images')) {
-            foreach ($request->file('images') as $imagefile) {
-                $destinationPath = public_path('uploads/products/avatars');
-            
-                // Move the image to the specified directory
-                $imagefile->move($destinationPath);
-                
-                // Save the image path to the database
-                $productImage = new ProductImage();
-                $productImage->product_id = $product->id;
-                $productImage->image = 'uploads/products/avatars/' ; // Store the relative path
-                $productImage->save();
-    
-                $uploadedImages[] = $productImage;
-            }}
-
-        return response()->json(['message' => 'Images uploaded successfully', 'images' => $uploadedImages], 201);
+        $productWithImages = Product::with('images')->find($productId);
+        return response()->json(['message' => 'Images uploaded successfully', 'product' => $productWithImages], 201);
     }
 
 

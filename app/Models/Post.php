@@ -8,7 +8,9 @@ class Post extends Model
 {
     protected $fillable = [
         'content',
-        'image_url',
+        'image',
+        'post_date',
+        'customer_id'
     ];
     public function customer()
     {

@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProductImage extends Model
 {
     protected $fillable = ['product_id', 'image'];
+    protected $table = 'productimgs';
 
     public function product()
     {

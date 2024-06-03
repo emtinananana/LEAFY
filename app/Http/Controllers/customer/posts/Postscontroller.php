@@ -1,0 +1,80 @@
+<?php
+
+namespace App\Http\Controllers\customer\posts;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Http\Request;
+use App\Models\Post ; 
+use App\Models\Comment ; 
+use Carbon\Carbon;
+
+class Postscontroller extends Controller
+{
+    public function showposts()
+    {
+        $post = Post::with('comments')->get();
+    if ($post->isEmpty()) {
+       return response()->json(['message' => 'No posts found.'], 404);
+   }
+   return response()->json($post, 200);
+    }
+
+
+    public function createPost(Request $request)
+    {
+        $customer = auth()->guard('customer-api')->user();
+
+        $request->validate([
+            'content' => 'required|string',
+            'image' => 'nullable|image',
+           
+           
+
+        ]);
+        $image = $request->file('image');
+        if ($image) {
+            $imagename = time() . '.' . $image->extension();
+            $image->move(public_path('uploads/posts/cover'), $imagename);
+        } else {
+            $imagename = null; 
+        }
+    
+        $postData = [
+            'content' => $request->input('content'),
+            'image' => $imagename,
+            'customer_id' => $customer->id,
+            'post_date' => Carbon::now(),
+        ];
+        $post = Post::create($postData);
+    
+        
+        return response()->json($post, 201);
+    }
+
+    public function destroy($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->comments()->delete();
+        $post->delete();
+
+        return response()->json(['message' => 'post deleted successfully']);
+    }
+        /**
+     * Search for product types by name.
+     */
+    public function search(string $content)
+    {
+        $post = Post::where('content', 'like', '%' . $content . '%')->get();
+        return response()->json($post);
+    }
+    
+    public function likePost($id)
+    {
+        $post = Post::findOrFail($id);
+        $post->like_count += 1;
+        $post->save();
+       
+
+        return response()->json(['message' => 'post liked successfully']);
+    }
+}

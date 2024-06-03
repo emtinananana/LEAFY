@@ -57,14 +57,22 @@ class shoppingCartController extends Controller
         $customer = Customer::findOrFail($customerId);
         $shoppingCart = $customer->shoppingCart;
 
-     $product = Product::findOrFail($productId);
+        $product = Product::findOrFail($productId);
+        if ($product->quantity < $request->input('quantity')) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Insufficient product quantity',
+            ], 400);
+        }
      $cartItem = $shoppingCart->cartItems()->create([
      'quantity' => $request->input('quantity'),
      'is_gift' => $request->input('is_gift', false),
      'pot_type' => $request->input('pot_type', null),
      'product_id' => $productId,
  ]);
+ $product->quantity -= $request->input('quantity');
 
+ $product->save();
         
 return response()->json([
     'success' => true,
@@ -93,7 +101,5 @@ return response()->json([
 
     return response()->json(['message' => 'Cart item removed from cart successfully']);
 }
-
-    
 
 }
