@@ -18,6 +18,10 @@ class OrderProduct extends Model
     {
         return $this->belongsTo(Product::class);
     }
+    public function cartItem()
+{
+    return $this->belongsTo(CartItem::class);
+}
 
     public function giftDetails()
     {

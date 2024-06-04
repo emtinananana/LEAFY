@@ -7,6 +7,7 @@ use App\Http\Controllers\admin\products\ProductController;
 use App\Http\Controllers\admin\products\ProductImageController;
 use App\Http\Controllers\admin\auth\AuthController;
 use App\Http\Controllers\admin\TagController;
+use App\Http\Controllers\CatalogController;
 use App\Http\Controllers\admin\plants\PlantInstructionsController;
 use App\Http\Controllers\admin\orders\OrdersController;
 use App\Http\Controllers\admin\profile\profileController;
@@ -18,6 +19,20 @@ use App\Http\Controllers\customer\favs\LikeProductsController;
 use App\Http\Controllers\customer\history\HistoryController;
 use App\Http\Controllers\customer\posts\Postscontroller;
 use App\Http\Controllers\customer\posts\CommentController;
+
+//shared routes
+
+Route::get('products', [ProductController::class, 'index']);
+Route::get('products/search/{name}', [ProductController::class, 'search']);
+Route::get('products/{id}', [ProductController::class, 'show']);
+
+//catalogs
+Route::prefix('catalog')->group(function () {
+    Route::get('/', [CatalogController::class, 'index']);
+    Route::get('/type/{type}', [CatalogController::class, 'showByType']);
+    Route::post('/search', [CatalogController::class, 'search']);
+    Route::post('/filter', [CatalogController::class, 'filter']);
+});
 
 // admin route 
 Route::group(['prefix' => 'admin/'], function() {
@@ -47,9 +62,8 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
         Route::get('orders/search/{name}', [OrdersController::class, 'search']);
 
          // Products Routes
-        Route::get('products', [ProductController::class, 'index']);
-        Route::get('products/search/{name}', [ProductController::class, 'search']);
-        Route::get('products/{id}', [ProductController::class, 'show']);
+       
+
         Route::post('products/add', [ProductController::class, 'store']);
         Route::put('products/{id}', [ProductController::class, 'update']);
         Route::delete('products/{id}', [ProductController::class, 'destroy']);
@@ -62,9 +76,11 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
         Route::delete('instructions/{id}', [PlantInstructionsController::class, 'destroy']);
 
          //productimages 
+         Route::get('products/{productId}/images', [ProductImageController::class, 'showAllImages']);
         Route::post('/products/{productId}/images', [ProductImageController::class, 'store']);
+       
         Route::delete('/products/{productId}/images/{imageId}', [ProductImageController::class, 'destroy']);
-        Route::put('/products/{productId}/images/{imageId}', [ProductImageController::class, 'update']);
+        Route::match(['post', 'put'],'/products/{productId}/images/{imageId}', [ProductImageController::class, 'update']);
 
          //tags
         Route::get('tags/index', [TagController::class, 'index']);
@@ -73,6 +89,7 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
         Route::put('tags/{id}', [TagController::class, 'update']);
         Route::delete('tags/{id}', [TagController::class, 'destroy']);
         });
+     
 
 
         //customer route
@@ -98,6 +115,7 @@ Route::group(['middleware'=>['auth:customer-api'], 'prefix' => 'customer/'], fun
 
     //checkout
     Route::post('cart/checkout', [CheckOutCart::class, 'CheckoutCart']);
+    Route::get('/giftproducts', [CheckOutCart::class, 'getGiftProducts']);
     
     //favproducts routes 
     Route ::post('/products/{productId}/like', [LikeProductsController::class, 'likeProduct']);

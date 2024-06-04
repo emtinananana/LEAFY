@@ -24,6 +24,7 @@ class CartItem extends Model
             $cartItem->is_gift = $cartItem->is_gift ? 1 : 0;
         });
     }
+
     public function shoppingCart()
     {
         return $this->belongsTo(ShoppingCart::class, );
@@ -32,4 +33,6 @@ class CartItem extends Model
     {
         return $this->belongsTo(Product::class);
     } 
+
+
 }

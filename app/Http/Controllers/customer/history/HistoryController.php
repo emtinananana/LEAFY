@@ -19,7 +19,7 @@ class HistoryController extends Controller
             return response()->json(['error' => 'Unauthorized'], 401);
         }
 
-        $orders = Order::with(['products.product', 'products.giftDetails'])
+        $orders = Order::with(['orderProducts.product', 'orderProducts.giftDetails'])
             ->where('customer_id', $customer->id)
             ->orderBy('order_date', 'desc')
             ->get();

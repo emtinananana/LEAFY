@@ -4,6 +4,7 @@ namespace App\Http\Controllers\admin\products;
 
 use App\Models\Product;
 use App\Models\Tag;
+use App\Model\ProductImage;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -15,15 +16,12 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::all();
+        $products = Product::with(['images', 'tags' => function ($query) {
+            $query->select('tags.id', 'name');
+        }])->get();
         if ($products->isEmpty()) {
             return response()->json(['message' => 'No products found.'], 404);
         }
-    
-   
-        $products = Product::with(['tags' => function ($query) {
-            $query->select('tags.id', 'name');
-        }])->get();
     
       
         return response()->json($products, 200);
@@ -73,8 +71,17 @@ class ProductController extends Controller
      */
     public function show($id)
     {
-        $product = Product::with('tags')->find($id);
-        return response()->json($product);
+        $product = Product::with(['images', 'tags' => function ($query) {
+            $query->select('tags.id', 'name');
+        }])->find($id);
+    
+        if (!$product) {
+            return response()->json(['message' => 'Product not found'], 404);
+        }
+        if ($product->product_type === 'plant') {
+            $product->load('plantInstruction');
+        }
+        return response()->json($product, 200);
     }
 
     /**
