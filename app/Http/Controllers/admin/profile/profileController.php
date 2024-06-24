@@ -30,54 +30,51 @@ class profileController extends Controller
             }
             public function updateAvatar(Request $request)
             {
-                
-          
-                 if (!$request->user('admin-api')) {
+                if (!$request->user('admin-api')) {
                     return response()->json([
-                     'message' => 'User not authenticated',
-                  ], 401);
-                 }
+                        'message' => 'User not authenticated',
+                    ], 401);
+                }
             
-             
                 $this->validate($request, [
                     'avatar' => 'required|image|mimes:jpeg,png,jpg|max:2048',
                 ]);
             
-               
                 if (!$request->hasFile('avatar')) {
                     return response()->json([
                         'message' => 'No file uploaded',
                     ], 400);
                 }
             
-               
                 $admin = auth()->guard('admin-api')->user();
                 if (!$admin) {
                     return response()->json([
                         'message' => 'Authentication failed',
                     ], 401);
                 }
-        
+            
+               
                 if ($admin->avatar) {
-                    $oldAvatarPath = public_path('uploads/admins/avatars/' . $admin->avatar);
+                    $oldAvatarPath = public_path('uploads/admins/avatars/' . basename($admin->avatar));
                     if (file_exists($oldAvatarPath)) {
                         unlink($oldAvatarPath);
                     }
                 }
-
+            
                 $avatar = $request->file('avatar');
                 $avatarName = time() . '.' . $avatar->extension();
-                $avatar->move(public_path('uploads/admins/avatars'), $avatarName);
-
+                $avatarPath = $avatar->move(public_path('uploads/admins/avatars'), $avatarName);
+            
+                $avatarUrl = url('uploads/admins/avatars/' . $avatarName);
+            
+              
                 $admin->update([
-                    'avatar' => $avatarName,
+                    'avatar' => $avatarUrl,
                 ]);
             
-                return response()->json([
-                    'message' => 'Profile updated successfully',
-                    'admin' => $admin,
-                ], 200);
+                return response()->json(['message' => 'Avatar updated successfully', 'avatar' => $avatarUrl]);
             }
+            
             
   }
   

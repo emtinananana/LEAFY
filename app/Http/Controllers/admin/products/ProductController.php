@@ -35,7 +35,7 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'required|string',
             'description' => 'nullable|string',
-            'tags' => 'required|array',
+            'tags' => 'nullable|array',
             'price' => 'required|numeric',
             'quantity' => 'required|integer',
             'product_type' => 'required|string|exists:producttypes,name'
@@ -94,29 +94,38 @@ class ProductController extends Controller
         $request->validate([
             'name' => 'string',
             'description' => 'nullable|string',
-            'tags' => 'array',
+            'tags' => 'nullable|array',
             'price' => 'numeric',
             'quantity' => 'integer',
             'product_type' => 'string|exists:producttypes,name'
         ]);
     
-       
-        $product->update($request->only(['name', 'description', 'price', 'quantity', 'product_type']));
+        $productData = $request->only(['name', 'description', 'price', 'quantity', 'product_type']);
     
-      
-        if ($request->has('tags')) {
-           
+        // Update product details
+        $product->update($productData);
+    
+        // Handle tags if provided and valid
+        if ($request->has('tags') && is_array($request->input('tags'))) {
             $tagIds = [];
+            
             foreach ($request->input('tags') as $tagName) {
-                $tag = Tag::firstOrCreate(['name' => $tagName]);
-                $tagIds[] = $tag->id;
+                if (!empty($tagName)) {
+                    $tag = Tag::firstOrCreate(['name' => $tagName]);
+                    $tagIds[] = $tag->id;
+                }
             }
-            $product->tags()->attach($tagIds);
+    
+            // Sync tags without detaching existing ones
+            $product->tags()->syncWithoutDetaching($tagIds);
         }
     
+        // Fetch the updated product with tags
         $product = Product::with('tags')->find($id);
         return response()->json($product);
     }
+    
+    
     
     /**
      * Remove the specified product from storage.

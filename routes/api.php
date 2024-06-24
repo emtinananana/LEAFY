@@ -22,6 +22,22 @@ use App\Http\Controllers\customer\posts\CommentController;
 
 //shared routes
 
+// Route::get('uploads/admins/avatars/{filename}', function ($filename) {
+//     $path = public_path('uploads/admins/avatars/' . $filename);
+
+//     if (!File::exists($path)) {
+//         abort(404);
+//     }
+
+//     $file = File::get($path);
+//     $type = File::mimeType($path);
+
+//     $response = Response::make($file, 200);
+//     $response->header("Content-Type", $type);
+
+//     return $response;
+// });
+
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/search/{name}', [ProductController::class, 'search']);
 Route::get('products/{id}', [ProductController::class, 'show']);
@@ -60,6 +76,7 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
         Route::get('orders/{id}', [OrdersController::class, 'show']);
         Route ::put('order/update/{id}', [OrdersController::class, 'update']);
         Route::get('orders/search/{name}', [OrdersController::class, 'search']);
+        Route::delete('orders/{id}', [OrdersController::class, 'destroy']);
 
          // Products Routes
        
@@ -80,7 +97,7 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
         Route::post('/products/{productId}/images', [ProductImageController::class, 'store']);
        
         Route::delete('/products/{productId}/images/{imageId}', [ProductImageController::class, 'destroy']);
-        Route::match(['post', 'put'],'/products/{productId}/images/{imageId}', [ProductImageController::class, 'update']);
+        Route::Post('/products/{productId}/images/{imageId}', [ProductImageController::class, 'update']);
 
          //tags
         Route::get('tags/index', [TagController::class, 'index']);
@@ -109,9 +126,9 @@ Route::group(['middleware'=>['auth:customer-api'], 'prefix' => 'customer/'], fun
     Route::post('profile/update/avatar', [customerprofilecontroller::class, 'updateAvatar'])->name('profile.update.avatar');
 
     //shopping cart routes
-    Route::get('/cart/{id}', [shoppingCartController::class,'show']);
-    Route::post('cart/add/{customerId}/{productId}',[shoppingCartController::class,'addToCart']);
-    Route::delete('cart/remove/{customerId}/{cartItemId}',[shoppingCartController::class,'removeFromCart']);
+    Route::get('/cart', [shoppingCartController::class,'show']);
+    Route::post('cart/add/{productId}',[shoppingCartController::class,'addToCart']);
+    Route::delete('cart/remove/{cartItemId}',[shoppingCartController::class,'removeFromCart']);
 
     //checkout
     Route::post('cart/checkout', [CheckOutCart::class, 'CheckoutCart']);

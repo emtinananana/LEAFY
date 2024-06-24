@@ -23,9 +23,14 @@ class CatalogController extends Controller
     {
         $products = Product::where('product_type', $type)->with('images')->get()->map(function ($product) {
             $product->first_image = $product->images->first() ? $product->images->first()->image : null;
-            return $product;
-        });
+         
+        
+        if ($product->product_type === 'plant') {
+            $product->load('plantInstruction');
+        }
 
+        return $product;
+    });
         return response()->json(['products' => $products]);
     }
 
