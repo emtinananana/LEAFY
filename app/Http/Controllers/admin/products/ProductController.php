@@ -78,7 +78,7 @@ class ProductController extends Controller
         if (!$product) {
             return response()->json(['message' => 'Product not found'], 404);
         }
-        if ($product->product_type === 'plant') {
+        if ($product->product_type === 'Plant') {
             $product->load('plantInstruction');
         }
         return response()->json($product, 200);

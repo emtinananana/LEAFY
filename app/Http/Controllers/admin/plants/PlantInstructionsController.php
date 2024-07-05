@@ -30,7 +30,7 @@ class PlantInstructionsController extends Controller
     {
         $product = Product::findOrFail($productid);
     
-        if ($product->product_type == 'plant') {
+        if ($product->product_type == 'Plant') {
             $validatedData = $request->validate([
                 'instruction' => 'nullable|string',
                

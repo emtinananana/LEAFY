@@ -41,7 +41,8 @@ use App\Http\Controllers\customer\posts\CommentController;
 Route::get('products', [ProductController::class, 'index']);
 Route::get('products/search/{name}', [ProductController::class, 'search']);
 Route::get('products/{id}', [ProductController::class, 'show']);
-
+Route::get('productTypes', [CRUDController::class, 'index']);
+Route::get('tags/index', [TagController::class, 'index']);
 //catalogs
 Route::prefix('catalog')->group(function () {
     Route::get('/', [CatalogController::class, 'index']);
@@ -64,7 +65,7 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
         Route::post('profile/update/avatar', [profileController::class, 'updateAvatar'])->name('profile.update.avatar');
 
          // Product Types Routes
-        Route::get('productTypes', [CRUDController::class, 'index']);
+    
         Route::get('productTypes/search/{name}', [CRUDController::class, 'search']);
         Route::get('productTypes/{id}', [CRUDController::class, 'show']);
         Route::post('productTypes/add', [CRUDController::class, 'store']);
@@ -100,7 +101,7 @@ Route::group(['middleware'=>['auth:admin-api'], 'prefix' => 'admin/'], function(
         Route::Post('/products/{productId}/images/{imageId}', [ProductImageController::class, 'update']);
 
          //tags
-        Route::get('tags/index', [TagController::class, 'index']);
+      
         Route::post('tags/add', [TagController::class, 'store']);
         Route::get('tags/{id}', [TagController::class, 'show']);
         Route::put('tags/{id}', [TagController::class, 'update']);

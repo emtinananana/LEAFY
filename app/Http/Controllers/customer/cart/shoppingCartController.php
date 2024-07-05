@@ -16,23 +16,30 @@ class ShoppingCartController extends Controller
     public function show()
     {
         $customer = Auth::guard('customer-api')->user();
-
+    
         if (!$customer) {
             return response()->json(['error' => 'Unauthorized'], 401);
         }
-
+    
         $shoppingCart = $customer->shoppingCart;
-
+    
         if (!$shoppingCart) {
             return response()->json(['message' => 'The shopping cart is empty.'], 404);
         }
-
+    
         $shoppingCart = $shoppingCart->load(['cartItems.product' => function ($query) {
             $query->select('id', 'name', 'price', 'product_type');
         }]);
-
+    
+        // Append the first image to each product
+        foreach ($shoppingCart->cartItems as $cartItem) {
+            $product = $cartItem->product;
+            $product->first_image = $product->images->first() ? $product->images->first()->image : null;
+        }
+    
         return response()->json(['shoppingCart' => $shoppingCart]);
     }
+    
 
     public function addToCart(Request $request, $productId)
     {
@@ -42,7 +49,7 @@ class ShoppingCartController extends Controller
             'pot_type' => [
                 Rule::requiredIf(function () use ($productId) {
                     $productType = Product::findOrFail($productId)->product_type;
-                    return $productType === 'plant';
+                    return $productType === 'Plant';
                 }),
             ],
         ]);
