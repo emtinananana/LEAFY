@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\customer\posts;
-
+use Illuminate\Support\Facades\URL;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Post ; 
@@ -12,7 +12,7 @@ class Postscontroller extends Controller
 {
     public function showposts()
     {
-        $post = Post::with('comments')->get();
+        $post = Post::with('comments.customer','customer')->get();
     if ($post->isEmpty()) {
        return response()->json(['message' => 'No posts found.'], 404);
    }
@@ -41,7 +41,7 @@ class Postscontroller extends Controller
     
         $postData = [
             'content' => $request->input('content'),
-            'image' => $imagename,
+            'image' => url('uploads/posts/cover/' . $imagename),
             'customer_id' => $customer->id,
             'post_date' => Carbon::now(),
         ];

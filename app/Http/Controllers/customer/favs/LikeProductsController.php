@@ -65,6 +65,9 @@ class LikeProductsController extends Controller
         if ($likedProducts-> isEmpty()) {
             return response()->json(['message' => 'There are no liked products']);
         }
+        $likedProducts->each(function ($product) {
+            $product->first_image = $product->images->first() ? $product->images->first()->image : null;
+        });
         return response()->json(['liked_products' => $likedProducts]);
 
     }
