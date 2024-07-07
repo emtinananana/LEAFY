@@ -35,6 +35,10 @@ class Customer extends Authenticatable
     {
         return $this->belongsToMany(Product::class, 'customers_likes');
     }
+    public function likedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'posts_likes');
+    }
     public function history()
     {
         return $this->hasOne(History::class);

@@ -150,6 +150,8 @@ Route::group(['middleware'=>['auth:customer-api'], 'prefix' => 'customer/'], fun
     Route::get('posts/{content}', [Postscontroller::class, 'search']);
     Route::delete('/post/{id}', [Postscontroller::class, 'destroy']);
     Route::post('/posts/like/{id}', [Postscontroller::class, 'likePost']);
+    Route::post('/posts/unlike/{id}', [Postscontroller::class, 'unlikePost']);
+    Route::get('/likedposts',[Postscontroller::class, 'ShowLikedPosts']);
     
     //commentsroutes
     Route::get('/posts/{postId}/comments', [CommentController::class, 'showComments']);

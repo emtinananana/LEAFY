@@ -64,17 +64,61 @@ class Postscontroller extends Controller
      */
     public function search(string $content)
     {
-        $post = Post::where('content', 'like', '%' . $content . '%')->get();
-        return response()->json($post);
+        $posts = Post::where('content', 'like', '%' . $content . '%')
+        ->with('comments.customer', 'customer')
+        ->get();
+
+        return response()->json($posts);
     }
     
-    public function likePost($id)
+    Public function likePost($id)
     {
         $post = Post::findOrFail($id);
+        $customer = auth()->guard('customer-api')->user();
+    
+        // Check if the post is already liked by this customer
+        if ($post->likedByCustomers()->where('customer_id', $customer->id)->exists()) {
+            return response()->json(['message' => 'Post already liked'], 400);
+        }
+    
+        // Add the like relationship
+        $post->likedByCustomers()->attach($customer->id);
+    
+        // Increment the like count
         $post->like_count += 1;
         $post->save();
-       
+    
+        return response()->json(['message' => 'Post liked successfully']);
+    }
+    public function unlikePost($id)
+{
+    $post = Post::findOrFail($id);
+    $customer = auth()->guard('customer-api')->user();
 
-        return response()->json(['message' => 'post liked successfully']);
+    // Check if the post is liked by this customer
+    if (!$post->likedByCustomers()->where('customer_id', $customer->id)->exists()) {
+        return response()->json(['message' => 'Post not liked yet'], 400);
+    }
+
+    // Remove the like relationship
+    $post->likedByCustomers()->detach($customer->id);
+
+    // Decrement the like count
+    $post->like_count -= 1;
+    $post->save();
+
+    return response()->json(['message' => 'Post unliked successfully']);
+}
+    public function ShowLikedPosts ()
+    {
+
+        $customer = auth('customer-api')->user();
+        $likedPosts = $customer->likedPosts()->with('comments.customer','customer')->get();
+        if ($likedPosts-> isEmpty()) {
+            return response()->json(['message' => 'There are no liked posts']);
+        }
+     
+        return response()->json(['liked_posts' => $likedPosts]);
+
     }
 }

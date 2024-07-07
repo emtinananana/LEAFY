@@ -20,4 +20,8 @@ class Post extends Model
     {
         return $this->hasMany(Comment::class);
     }
+    public function likedByCustomers()
+    {
+        return $this->belongsToMany(Customer::class, 'posts_likes');
+    }
 }
