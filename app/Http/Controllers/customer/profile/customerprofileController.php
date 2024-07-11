@@ -4,6 +4,7 @@ namespace App\Http\Controllers\customer\profile;
 use App\Models\customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class customerprofilecontroller extends Controller
 {
@@ -79,7 +80,8 @@ class customerprofilecontroller extends Controller
             $avatar->move(public_path('uploads/customer/avatars'), $avatarName);
 
             $customer->update([
-                'avatar' => $avatarName,
+                
+                'avatar' => url('uploads/customer/avatars/' . $avatarName),
             ]);
         
             return response()->json([
