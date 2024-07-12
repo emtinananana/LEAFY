@@ -24,4 +24,5 @@ class Post extends Model
     {
         return $this->belongsToMany(Customer::class, 'posts_likes');
     }
+
 }

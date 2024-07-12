@@ -109,16 +109,20 @@ class Postscontroller extends Controller
 
     return response()->json(['message' => 'Post unliked successfully']);
 }
-    public function ShowLikedPosts ()
-    {
-
-        $customer = auth('customer-api')->user();
-        $likedPosts = $customer->likedPosts()->with('comments.customer','customer')->get();
-        if ($likedPosts-> isEmpty()) {
-            return response()->json(['message' => 'There are no liked posts']);
-        }
-     
-        return response()->json(['liked_posts' => $likedPosts]);
-
+public function showLikedPosts()
+{
+    $customer = auth('customer-api')->user();
+    if (!$customer) {
+        return response()->json(['message' => 'No customer found']);
     }
+
+   
+
+    $likedPosts = $customer->likedPosts()->with('comments.customer', 'customer')->get();
+    if ($likedPosts->isEmpty()) {
+        return response()->json(['message' => 'There are no liked posts']);
+    }
+
+    return response()->json(['liked_posts' => $likedPosts]);
+}
 }

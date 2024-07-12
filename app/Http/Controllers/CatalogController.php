@@ -26,7 +26,7 @@ class CatalogController extends Controller
 
     public function showByType($type)
     {
-        $products = Product::where('product_type', $type)->with('images')->get()->map(function ($product) {
+        $products = Product::where('product_type', $type)->with('images','tags')->get()->map(function ($product) {
             $product->first_image = $product->images->first() ? $product->images->first()->image : null;
          
         
@@ -42,8 +42,11 @@ class CatalogController extends Controller
     public function search(Request $request)
     {
         $name = $request->input('name');
-        $products = Product::where('name', 'like', "%$name%")->with('images')->get()->map(function ($product) {
+        $products = Product::where('name', 'like', "%$name%")->with('images','tags')->get()->map(function ($product) {
             $product->first_image = $product->images->first() ? $product->images->first()->image : null;
+            if ($product->product_type === 'Plant') {
+                $product->load('plantInstruction');
+            }
             return $product;
         });
     
@@ -60,8 +63,11 @@ class CatalogController extends Controller
 
     $products = Product::whereHas('tags', function ($query) use ($tags) {
         $query->whereIn('name', $tags);
-    })->with('images')->get()->map(function ($product) {
+    })->with('images','tags')->get()->map(function ($product) {
         $product->first_image = $product->images->isNotEmpty() ? $product->images->first()->image : null;
+        if ($product->product_type === 'Plant') {
+            $product->load('plantInstruction');
+        }
         return $product;
     });
 
