@@ -71,6 +71,7 @@ class CheckoutCart extends Controller
                 $orderProduct->order_id = $order->id;
                 $orderProduct->product_id = $cartItem->product_id;
                 $orderProduct->quantity = $cartItem->quantity;
+                $orderProduct->pot_type = $cartItem->pot_type;
                 $orderProduct->save();
 
                 if ($cartItem->is_gift) {

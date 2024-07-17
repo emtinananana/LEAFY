@@ -9,6 +9,7 @@ class CartItem extends Model
 {
     protected $fillable = [
         'quantity',
+        'pot_type',
         'is_gift',
         'product_id'
     
